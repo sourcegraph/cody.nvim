@@ -35,12 +35,16 @@ if vim.fn.executable "llmsp" == 1 then
           height = #result.message,
           width = 80,
           focus_id = "codyResponse",
+          border = "rounded",
+          title = "Cody response"
         })
         -- Call it again so that it focuses the window immediately
         vim.lsp.util.open_floating_preview(result.message, "markdown", {
           height = #result.message,
           width = 80,
           focus_id = "codyResponse",
+          border = "rounded",
+          title = "Cody response"
         })
       end, 0)
     end
