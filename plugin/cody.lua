@@ -36,7 +36,7 @@ if vim.fn.executable "llmsp" == 1 then
           width = 80,
           focus_id = "codyResponse",
           border = "rounded",
-          title = "Cody response"
+          title = "Cody explain"
         })
         -- Call it again so that it focuses the window immediately
         vim.lsp.util.open_floating_preview(result.message, "markdown", {
@@ -44,7 +44,7 @@ if vim.fn.executable "llmsp" == 1 then
           width = 80,
           focus_id = "codyResponse",
           border = "rounded",
-          title = "Cody response"
+          title = "Cody explain"
         })
       end, 0)
     end
@@ -66,7 +66,7 @@ if vim.fn.executable "llmsp" == 1 then
           width = 80,
           focus_id = "codyResponse",
           border = "rounded",
-          title = "Cody response"
+          title = "Cody diff"
         })
         -- Call it again so that it focuses the window immediately
         local bufnr, _ = vim.lsp.util.open_floating_preview(result.message,
@@ -75,7 +75,7 @@ if vim.fn.executable "llmsp" == 1 then
             width = 80,
             focus_id = "codyResponse",
             border = "rounded",
-            title = "Cody response"
+            title = "Cody diff"
           })
         vim.cmd('set ma')
         local new = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
