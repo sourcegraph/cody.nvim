@@ -1,6 +1,7 @@
 local M = {}
 
 M.chat_buffer = vim.api.nvim_create_buf(false, true)
+vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
 M.input_buffer = vim.api.nvim_create_buf(false, true)
 M.hover_buffer = vim.api.nvim_create_buf(false, true)
 M.client = nil -- Client used for LSP requests. Needs to be initialized.
@@ -54,6 +55,12 @@ vim.keymap.set('n', 'j', function()
     end
 end, { silent = true, buffer = M.chat_buffer })
 
+-- When entering input mode in the chat buffer, jump to the input buffer
+vim.keymap.set('n', 'i', function()
+    vim.api.nvim_set_current_win(M.input_window)
+    vim.cmd('startinsert')
+end, { silent = true, buffer = M.chat_buffer })
+
 -- Register "send chat" command for the input buffer.
 -- Pressing enter, while in normal mode, will send the chat message.
 vim.keymap.set('n', '<cr>', function()
@@ -67,7 +74,9 @@ vim.keymap.set('n', '<cr>', function()
 
     -- Set the chat buffer contents for instant feedback and clear the
     -- input buffer.
+    vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', true)
     vim.api.nvim_buf_set_lines(M.chat_buffer, 0, -1, false, M.chat_history)
+    vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
     vim.api.nvim_buf_set_lines(M.input_buffer, 0, -1, false, {})
 
     -- Send the request to get a response from Cody.
@@ -83,7 +92,9 @@ vim.keymap.set('n', '<cr>', function()
                 table.insert(M.chat_history, resp_line)
             end
             table.insert(M.chat_history, "")
+            vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', true)
             vim.api.nvim_buf_set_lines(M.chat_buffer, 0, -1, false, M.chat_history)
+            vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
             vim.api.nvim_win_set_cursor(M.chat_window, { #M.chat_history, 0 })
         end, 0)
 end, { silent = true, buffer = M.input_buffer })
@@ -112,7 +123,9 @@ M.open_chat = function()
                     table.insert(M.chat_history, "")
                 end
             end
+            vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', true)
             vim.api.nvim_buf_set_lines(M.chat_buffer, 0, -1, false, M.chat_history)
+            vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
 
             M.chat_window = vim.api.nvim_open_win(M.chat_buffer, false, {
                 width = math.floor(ui.width / 2),
