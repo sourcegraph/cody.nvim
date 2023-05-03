@@ -13,17 +13,46 @@ vim.keymap.set('n', '<cr>', function()
     vim.api.nvim_win_close(0, true)
 end, { silent = true, buffer = M.hover_buffer })
 
-vim.keymap.set('n', 'q', function() vim.api.nvim_win_close(0, true) end, { silent = true, buffer = M.input_buffer })
-
-vim.api.nvim_create_autocmd({ "WinLeave" }, {
-    buffer = M.input_buffer,
-    callback = function()
+local close_chat = function()
+    if vim.api.nvim_win_is_valid(M.chat_window) and (vim.api.nvim_win_is_valid(M.input_window)) then
         vim.api.nvim_win_close(M.chat_window, true)
         vim.api.nvim_win_close(M.input_window, true)
+    end
+end
+
+vim.keymap.set('n', 'q', close_chat, { silent = true, buffer = M.input_buffer })
+vim.keymap.set('n', 'q', close_chat, { silent = true, buffer = M.chat_buffer })
+
+vim.api.nvim_create_autocmd({ "WinEnter" }, {
+    callback = function()
+        if M.chat_window ~= nil and M.input_window ~= nil then
+            local winnr = vim.api.nvim_get_current_win()
+            if (winnr ~= M.chat_window) and (winnr ~= M.input_window) then
+                close_chat()
+            end
+        end
     end
 })
 vim.api.nvim_buf_set_option(M.chat_buffer, 'filetype', 'markdown')
 vim.api.nvim_buf_set_option(M.input_buffer, 'filetype', 'markdown')
+
+vim.keymap.set('n', 'k', function()
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
+    if cursor_pos[1] == 1 then
+        vim.api.nvim_set_current_win(M.chat_window)
+    else
+        vim.api.nvim_win_set_cursor(0, { cursor_pos[1] - 1, cursor_pos[2] })
+    end
+end, { silent = true, buffer = M.input_buffer })
+
+vim.keymap.set('n', 'j', function()
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
+    if cursor_pos[1] == vim.api.nvim_buf_line_count(M.chat_buffer) then
+        vim.api.nvim_set_current_win(M.input_window)
+    else
+        vim.api.nvim_win_set_cursor(0, { cursor_pos[1] + 1, cursor_pos[2] })
+    end
+end, { silent = true, buffer = M.chat_buffer })
 
 -- Register "send chat" command for the input buffer.
 -- Pressing enter, while in normal mode, will send the chat message.
