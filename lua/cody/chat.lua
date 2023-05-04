@@ -100,6 +100,9 @@ vim.keymap.set('n', '<cr>', function()
 end, { silent = true, buffer = M.input_buffer })
 
 M.open_chat = function()
+    if M.chat_window ~= nil and M.input_window ~= nil and vim.api.nvim_win_is_valid(M.chat_window) and (vim.api.nvim_win_is_valid(M.input_window)) then
+        return
+    end
     local ui = vim.api.nvim_list_uis()[1]
     local cody_chat_height = math.floor(ui.height / 2)
     local chat_input_offset = cody_chat_height + math.floor(ui.height / 2) / 2
@@ -136,6 +139,7 @@ M.open_chat = function()
                 border = "rounded",
                 title = "Cody chat"
             })
+            vim.api.nvim_win_set_option(M.chat_window, 'wrap', true)
 
             M.input_window = vim.api.nvim_open_win(M.input_buffer, true, {
                 width = math.floor(ui.width / 2),
