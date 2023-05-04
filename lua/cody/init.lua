@@ -17,16 +17,17 @@ function Dump(o)
 end
 
 M.setup = function(opts)
-    local dataFolder = vim.fn.stdpath("data") .. "/llmsp"
+    local path_sep = vim.loop.os_uname().version:match "Windows" and "\\" or "/"
+    local dataFolder = vim.fn.stdpath("data") .. path_sep .. "llmsp" .. path_sep
     vim.fn.mkdir(dataFolder, "p")
-    local tosAccepted = vim.fn.filereadable(dataFolder .. "/tos-accepted") == 1
+    local tosAccepted = vim.fn.filereadable(dataFolder .. "tos-accepted") == 1
 
     if not tosAccepted then
         local choice = vim.fn.input(
                 "By using Cody, you agree to its license and privacy statement: https://about.sourcegraph.com/terms/cody-notice . Do you wish to proceed? Yes/No: ")
             :lower()
         if choice == "yes" or choice == "y" then
-            local file = io.open(dataFolder .. "/tos-accepted", "w")
+            local file = io.open(dataFolder .. "tos-accepted", "w")
             if file ~= nil then
                 file:write("")
                 file:close()
@@ -38,6 +39,8 @@ M.setup = function(opts)
     if not tosAccepted then
         return
     end
+
+    local anonymousUidFile = dataFolder .. "sourcegraphAnonymousUid"
 
     vim.api.nvim_create_user_command("CodyChat", function()
         chat.open_chat()
@@ -120,7 +123,8 @@ M.setup = function(opts)
                     url = opts.url,
                     accessToken = opts.accessToken,
                     autoComplete = opts.autoComplete,
-                    repos = opts.repos
+                    repos = opts.repos,
+                    uidFile = anonymousUidFile
                 },
             },
         },
