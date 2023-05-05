@@ -53,22 +53,26 @@ M.setup = function(opts)
 
     local binary_name = "llmsp-v0.1.0-beta.1-" .. arch .. "-" .. os_name
     local binary_path = dataFolder .. binary_name
-    if vim.fn.filereadable(binary_path) ~= 1 then
-        print("Downloading llmsp binary for Cody")
-        local binary_url = "https://github.com/pjlast/llmsp/releases/download/v0.1.0-beta.1/" .. binary_name
+    if not opts.dev then
+        if vim.fn.filereadable(binary_path) ~= 1 then
+            print("Downloading llmsp binary for Cody")
+            local binary_url = "https://github.com/pjlast/llmsp/releases/download/v0.1.0-beta.1/" .. binary_name
 
-        vim.fn.system({
-            "curl", "-L", binary_url, "-o", binary_path
-        })
-        vim.fn.system({
-            "chmod", "+x", binary_path
-        })
+            vim.fn.system({
+                "curl", "-L", binary_url, "-o", binary_path
+            })
+            vim.fn.system({
+                "chmod", "+x", binary_path
+            })
+        end
+    else
+        binary_path = "llmsp"
     end
 
     local anonymousUidFile = dataFolder .. "sourcegraphAnonymousUid"
 
     vim.api.nvim_create_user_command("CodyChat", function()
-        chat.open_chat()
+        chat.open_chat("file://" .. vim.fn.expand('%:p'))
     end, { range = 2 })
 
     vim.api.nvim_create_user_command("CodyExplain", function(command)

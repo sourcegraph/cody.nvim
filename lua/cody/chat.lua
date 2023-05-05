@@ -78,11 +78,13 @@ vim.keymap.set('n', '<cr>', function()
     vim.api.nvim_buf_set_lines(M.chat_buffer, 0, -1, false, M.chat_history)
     vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
     vim.api.nvim_buf_set_lines(M.input_buffer, 0, -1, false, {})
+    vim.api.nvim_win_set_cursor(M.chat_window, { #M.chat_history, 0 })
 
     -- Send the request to get a response from Cody.
     M.client.request("workspace/executeCommand", {
             command = "cody.chat/message",
             arguments = {
+                M.current_file,
                 table.concat(lines, "\n")
             },
         },
@@ -99,7 +101,8 @@ vim.keymap.set('n', '<cr>', function()
         end, 0)
 end, { silent = true, buffer = M.input_buffer })
 
-M.open_chat = function()
+M.open_chat = function(current_file)
+    M.current_file = current_file
     if M.chat_window ~= nil and M.input_window ~= nil and vim.api.nvim_win_is_valid(M.chat_window) and (vim.api.nvim_win_is_valid(M.input_window)) then
         return
     end
