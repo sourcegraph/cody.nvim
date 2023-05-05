@@ -40,6 +40,31 @@ M.setup = function(opts)
         return
     end
 
+    local os_name = vim.loop.os_uname().sysname:lower()
+    local arch = vim.loop.os_uname().machine:lower()
+    if arch == "amd64" or arch == "x86_64" then
+        arch = "amd64"
+    elseif arch == "arm64" then
+        arch = "arm64"
+    end
+    if os_name == "windows" then
+        os_name = "windows.exe"
+    end
+
+    local binary_name = "llmsp-v0.1.0-beta.1-" .. arch .. "-" .. os_name
+    local binary_path = dataFolder .. binary_name
+    if vim.fn.filereadable(binary_path) ~= 1 then
+        print("Downloading llmsp binary for Cody")
+        local binary_url = "https://github.com/pjlast/llmsp/releases/download/v0.1.0-beta.1/" .. binary_name
+
+        vim.fn.system({
+            "curl", "-L", binary_url, "-o", binary_path
+        })
+        vim.fn.system({
+            "chmod", "+x", binary_path
+        })
+    end
+
     local anonymousUidFile = dataFolder .. "sourcegraphAnonymousUid"
 
     vim.api.nvim_create_user_command("CodyChat", function()
@@ -105,7 +130,7 @@ M.setup = function(opts)
     -- Create LSP Client
     local client_id = vim.lsp.start({
         name = "cody",
-        cmd = { "llmsp" }, -- TODO: Replace with the downloaded binary
+        cmd = { binary_path },
         root_dir = vim.fs.dirname(vim.fs.find({ '.git' }, { upward = true })[1]),
         trace = "off",
         handlers = {
