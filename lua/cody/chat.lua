@@ -140,7 +140,6 @@ M.open_chat = function(current_file)
                 row = math.floor((ui.height / 2) / 2) - 3,
                 col = math.floor((ui.width / 2) / 2),
                 border = "rounded",
-                title = "Cody chat"
             })
             vim.api.nvim_win_set_option(M.chat_window, 'wrap', true)
 
@@ -151,7 +150,6 @@ M.open_chat = function(current_file)
                 row = chat_input_offset - 1,
                 col = math.floor((ui.width / 2) / 2),
                 border = "rounded",
-                title = "Input"
             })
 
             if #M.chat_history > 0 then
@@ -170,8 +168,6 @@ M.open_hover = function(window_title, buffer_lang, callback)
         row = cursor_pos[1] - 1 - vim.fn.winsaveview().topline,
         col = cursor_pos[2],
         border = "rounded",
-        title = window_title,
-        title_pos = 'center'
     })
 
     vim.api.nvim_buf_set_option(M.hover_buffer, 'filetype', buffer_lang)
