@@ -21,6 +21,7 @@ end
 
 vim.keymap.set('n', 'q', close_chat, { silent = true, buffer = M.input_buffer })
 vim.keymap.set('n', 'q', close_chat, { silent = true, buffer = M.chat_buffer })
+vim.keymap.set('n', 'q', function() vim.api.nvim_win_close(0, true) end, { silent = true, buffer = M.hover_buffer })
 
 vim.api.nvim_create_autocmd({ "WinEnter" }, {
     callback = function()
