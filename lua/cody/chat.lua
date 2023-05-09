@@ -7,17 +7,15 @@ M.hover_buffer = vim.api.nvim_create_buf(false, true)
 M.client = nil -- Client used for LSP requests. Needs to be initialized.
 M.chat_history = {}
 
-vim.keymap.set('n', 'q', function() vim.api.nvim_win_close(0, true) end, { silent = true, buffer = M.hover_buffer })
-
 vim.keymap.set('n', '<cr>', function()
     M.hover_return_callback(vim.api.nvim_buf_get_lines(0, 0, -1, false))
     vim.api.nvim_win_close(0, true)
 end, { silent = true, buffer = M.hover_buffer })
 
 local close_chat = function()
-    if vim.api.nvim_win_is_valid(M.chat_window) and (vim.api.nvim_win_is_valid(M.input_window)) then
-        vim.api.nvim_win_close(M.chat_window, true)
+    if vim.api.nvim_win_is_valid(M.input_window) and vim.api.nvim_win_is_valid(M.chat_window) then
         vim.api.nvim_win_close(M.input_window, true)
+        vim.api.nvim_win_close(M.chat_window, true)
     end
 end
 
@@ -97,7 +95,9 @@ vim.keymap.set('n', '<cr>', function()
             vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', true)
             vim.api.nvim_buf_set_lines(M.chat_buffer, 0, -1, false, M.chat_history)
             vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
-            vim.api.nvim_win_set_cursor(M.chat_window, { #M.chat_history, 0 })
+            if vim.api.nvim_win_is_valid(M.chat_window) then
+                vim.api.nvim_win_set_cursor(M.chat_window, { #M.chat_history, 0 })
+            end
         end, 0)
 end, { silent = true, buffer = M.input_buffer })
 
@@ -132,25 +132,33 @@ M.open_chat = function(current_file)
             vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', true)
             vim.api.nvim_buf_set_lines(M.chat_buffer, 0, -1, false, M.chat_history)
             vim.api.nvim_buf_set_option(M.chat_buffer, 'modifiable', false)
-
-            M.chat_window = vim.api.nvim_open_win(M.chat_buffer, false, {
+            local chat_args = {
                 width = math.floor(ui.width / 2),
                 height = cody_chat_height,
                 relative = "editor",
                 row = math.floor((ui.height / 2) / 2) - 3,
                 col = math.floor((ui.width / 2) / 2),
                 border = "rounded",
-            })
+            }
+
+            if vim.version().minor > 8 then
+                chat_args.title = "Chat"
+            end
+            M.chat_window = vim.api.nvim_open_win(M.chat_buffer, false, chat_args)
             vim.api.nvim_win_set_option(M.chat_window, 'wrap', true)
 
-            M.input_window = vim.api.nvim_open_win(M.input_buffer, true, {
+            local input_args = {
                 width = math.floor(ui.width / 2),
                 height = 3,
                 relative = "editor",
                 row = chat_input_offset - 1,
                 col = math.floor((ui.width / 2) / 2),
                 border = "rounded",
-            })
+            }
+            if vim.version().minor > 8 then
+                input_args.title = "Input"
+            end
+            M.input_window = vim.api.nvim_open_win(M.input_buffer, true, input_args)
 
             if #M.chat_history > 0 then
                 vim.api.nvim_win_set_cursor(M.chat_window, { #M.chat_history, 0 })
@@ -159,16 +167,36 @@ M.open_chat = function(current_file)
     )
 end
 
+local prev_buffer_lang = ''
+local prev_window_title = ''
+
 M.open_hover = function(window_title, buffer_lang, callback)
+    -- In case we're opening the hover window again without a command
+    -- we'd like to have the old title and buffer language
+    if buffer_lang == '' then
+        buffer_lang = prev_buffer_lang
+    else
+        prev_buffer_lang = buffer_lang
+    end
+    if window_title == '' then
+        window_title = prev_window_title
+    else
+        prev_window_title = window_title
+    end
+
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
-    M.hover_window = vim.api.nvim_open_win(M.hover_buffer, true, {
+    local args = {
         width = 80,
         height = 1,
         relative = 'win',
         row = cursor_pos[1] - 1 - vim.fn.winsaveview().topline,
         col = cursor_pos[2],
         border = "rounded",
-    })
+    }
+    if vim.version().minor > 8 then
+        args.title = window_title
+    end
+    M.hover_window = vim.api.nvim_open_win(M.hover_buffer, true, args)
 
     vim.api.nvim_buf_set_option(M.hover_buffer, 'filetype', buffer_lang)
     vim.api.nvim_win_set_buf(M.hover_window, M.hover_buffer)

@@ -55,7 +55,7 @@ M.setup = function(opts)
     local binary_path = dataFolder .. binary_name
     if not opts.dev then
         if vim.fn.filereadable(binary_path) ~= 1 then
-            print("Downloading llmsp binary for Cody")
+            print("\nDownloading llmsp binary for Cody")
             local binary_url = "https://github.com/pjlast/llmsp/releases/download/v0.1.0-beta.1/" .. binary_name
 
             vim.fn.system({
@@ -94,24 +94,6 @@ M.setup = function(opts)
         end, 0)
     end, { range = 2, nargs = 1 })
 
-    vim.api.nvim_create_user_command("CodyTest", function(command)
-        for _, client in pairs(vim.lsp.get_active_clients({ name = "cody" })) do
-            local workDoneToken = "1234"
-            local autocmd_id = vim.api.nvim_create_autocmd({ "User" }, {
-                pattern = { "LspProgressUpdate" },
-                callback = function()
-                    print(Dump(client.messages.progress[workDoneToken]))
-                end,
-            })
-
-            client.request("workspace/executeCommand", {
-                command = "testCommand",
-                workDoneToken = workDoneToken
-            }, function(_, _, _, _)
-            end, 0)
-        end
-    end, { range = 2 })
-
     vim.api.nvim_create_user_command("CodyDiff", function(command)
         local p = "file://" .. vim.fn.expand('%:p')
 
@@ -130,6 +112,16 @@ M.setup = function(opts)
         }, function(_, _, _, _)
         end, 0)
     end, { range = 2, nargs = 1 })
+
+    vim.api.nvim_create_user_command("CodyHover", function(command)
+        local current_buf = vim.api.nvim_get_current_buf()
+        chat.open_hover(command.args, '', function(hover_content)
+            local start_line = command.line1 - 1
+            local end_line = command.line2
+            vim.api.nvim_buf_set_lines(current_buf, start_line, end_line, false, hover_content)
+        end)
+        vim.api.nvim_win_set_height(chat.hover_window, #vim.api.nvim_buf_get_lines(chat.hover_buffer, 0, -1, false))
+    end, { range = 2 })
 
     -- Create LSP Client
     local client_id = vim.lsp.start({
