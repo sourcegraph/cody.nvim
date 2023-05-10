@@ -90,7 +90,8 @@ M.setup = function(opts)
         chat.client.request("workspace/executeCommand", {
             command = "cody.explain",
             arguments = { p, command.line1 - 1, command.line2 - 1, command.args, false },
-        }, function(_, _, _, _)
+        }, function(err, _, _, _)
+            vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
         end, 0)
     end, { range = 2, nargs = 1 })
 
@@ -109,7 +110,8 @@ M.setup = function(opts)
         chat.client.request("workspace/executeCommand", {
             command = "cody.explain",
             arguments = { p, command.line1 - 1, command.line2 - 1, command.args, true }
-        }, function(_, _, _, _)
+        }, function(err, _, _, _)
+            vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
         end, 0)
     end, { range = 2, nargs = 1 })
 
