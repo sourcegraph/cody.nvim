@@ -91,7 +91,9 @@ M.setup = function(opts)
             command = "cody.explain",
             arguments = { p, command.line1 - 1, command.line2 - 1, command.args, false },
         }, function(err, _, _, _)
-            vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
+            if err ~= nil then
+                vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
+            end
         end, 0)
     end, { range = 2, nargs = 1 })
 
@@ -111,7 +113,9 @@ M.setup = function(opts)
             command = "cody.explain",
             arguments = { p, command.line1 - 1, command.line2 - 1, command.args, true }
         }, function(err, _, _, _)
-            vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
+            if err ~= nil then
+                vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
+            end
         end, 0)
     end, { range = 2, nargs = 1 })
 
@@ -124,6 +128,28 @@ M.setup = function(opts)
         end)
         vim.api.nvim_win_set_height(chat.hover_window, #vim.api.nvim_buf_get_lines(chat.hover_buffer, 0, -1, false))
     end, { range = 2 })
+
+    vim.api.nvim_create_user_command("CodyRemember", function(command)
+        local p = "file://" .. vim.fn.expand('%:p')
+        chat.client.request("workspace/executeCommand", {
+            command = "cody.remember",
+            arguments = { p, command.line1 - 1, command.line2 - 1 },
+        }, function(err, _, _, _)
+            if err ~= nil then
+                vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
+            end
+        end, 0)
+    end, { range = 2 })
+
+    vim.api.nvim_create_user_command("CodyForget", function(command)
+        chat.client.request("workspace/executeCommand", {
+            command = "cody.forget",
+        }, function(err, _, _, _)
+            if err ~= nil then
+                vim.api.nvim_echo({ { "Error: " .. err.messge, "ErrorMsg" } }, true, {})
+            end
+        end, 0)
+    end, {})
 
     -- Create LSP Client
     local client_id = vim.lsp.start({
