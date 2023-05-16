@@ -1,4 +1,6 @@
-# Cody for Neovim!
+# Cody for Neovim! (`EXPERIMENTAL`)
+
+> NOTE: This is highly experimental. Cody for Neovim can change at any point, might be "unreleased", we don't guarantee backwards compatibility. It's a proof-of-concept. 
 
 ## Installation
 
