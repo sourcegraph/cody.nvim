@@ -9,7 +9,7 @@ Just add `cody.nvim` to your favourite plugin manager, for example, for example 
 ```lua
 -- Other plugins
 {
-    "pjlast/cody.nvim",
+    "sourcegraph/cody.nvim",
     config = function()
         require("cody").setup({
             accessToken = "YOUR_ACCESS_TOKEN",

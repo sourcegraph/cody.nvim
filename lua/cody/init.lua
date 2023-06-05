@@ -56,7 +56,7 @@ M.setup = function(opts)
     if not opts.dev then
         if vim.fn.filereadable(binary_path) ~= 1 then
             print("\nDownloading llmsp binary for Cody")
-            local binary_url = "https://github.com/pjlast/llmsp/releases/download/v0.1.0-beta.1/" .. binary_name
+            local binary_url = "https://github.com/sourcegraph/llmsp/releases/download/v0.1.0-beta.1/" .. binary_name
 
             vim.fn.system({
                 "curl", "-L", binary_url, "-o", binary_path
