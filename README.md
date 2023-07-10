@@ -1,6 +1,6 @@
-# Cody for Neovim! (`EXPERIMENTAL`)
+# Cody for Neovim! (`DEPRICATED`)
 
-> NOTE: This is highly experimental. Cody for Neovim can change at any point, might be "unreleased", we don't guarantee backwards compatibility. It's a proof-of-concept. 
+> NOTE: This plugin has been deprecated. Current development of a Cody plugin for Neovim is happening at [sg.nvim](https://github.com/sourcegraph/sg.nvim)
 
 ## Installation
 
